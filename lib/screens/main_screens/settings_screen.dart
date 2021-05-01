@@ -1,5 +1,6 @@
 import 'package:day_night_time_picker/lib/daynight_timepicker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:hive/hive.dart';
 import 'package:provider/provider.dart';
@@ -149,6 +150,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   theme.isDark = false;
                   sunnyIconOpacity = 1.0;
                   nightIconOpacity = 0.0;
+                  setUIOverlayTheme(Colors.transparent, Brightness.dark);
                 });
               })
             ),
@@ -169,6 +171,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   theme.isDark = true;
                   sunnyIconOpacity = 0.0;
                   nightIconOpacity = 1.0;
+                  setUIOverlayTheme(Color(0xFF303030), Brightness.light);
                 });
               })
             ),
@@ -192,6 +195,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   theme.isDark = isSystemDark(context);
                   sunnyIconOpacity = isSystemDark(context) ? 0.0 : 1.0;
                   nightIconOpacity = isSystemDark(context) ? 1.0 : 0.0;
+                  setUIOverlayTheme(
+                    isSystemDark(context)
+                      ? Color(0xFF303030)
+                      : Colors.transparent,
+                    isSystemDark(context)
+                      ? Brightness.light
+                      : Brightness.dark
+                  );
                 });
               }),
               style: customButton(isSystemDark(context) ? Color(0xFF424242) : Color(0xFFFFFFFF))
@@ -200,6 +211,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
         )
       ]
     );
+  }
+
+  void setUIOverlayTheme(Color color, Brightness brightness) {
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+      statusBarColor: color,                            //Status bar color
+      statusBarBrightness: brightness,                  //Status bar brightness
+      statusBarIconBrightness: brightness,              //Status barIcon brightness
+      systemNavigationBarColor: color,                  //Navigation bar color
+      systemNavigationBarDividerColor: color,           //Navigation bar divider color
+      systemNavigationBarIconBrightness: brightness,    //Navigation bar icon
+    ));
   }
 
   Widget _buildSelectTime() {
@@ -254,7 +276,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               onTap: () => reminderLogic(true),
               child: Text(
                 "${reminder.hour != -1
-                  ? "${reminder.hour} : ${reminder.minute}"
+                  ? "${reminder.hour}:${reminder.minute}"
                   : "No time set"
                 }",
                 style: TextStyle(
@@ -281,7 +303,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
             AnimatedOpacity(
               opacity: reminderOffOpacity,
-              child: Icon(Icons.do_not_disturb, size: 30),
+              child: Icon(Icons.do_not_disturb, size: 30, color: Colors.grey),
               duration: Duration(milliseconds: 500),
             ),
 
@@ -292,7 +314,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
             AnimatedOpacity(
               opacity: reminderOnOpacity,
-              child: Icon(Icons.check, size: 30),
+              child: Icon(Icons.check, size: 30, color: Colors.blue),
               duration: Duration(milliseconds: 500),
             ),
             SizedBox(width: 20)
@@ -311,12 +333,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
         reminderOnOpacity = 1.0;
         Navigator.of(context).push(
           showPicker(
+            cancelText: "",
+            okText: "Submit",
+            blurredBackground: true,
             context: context,
             value: _time,
             onChange: onTimeChanged,
             is24HrFormat: true,
             onChangeDateTime: (DateTime dateTime) {
               setState(() {
+                print(dateTime);
                 reminderBox.putAt(0, Reminder(dateTime.hour, dateTime.minute));
                 _scheduleDailyNotification();
               });

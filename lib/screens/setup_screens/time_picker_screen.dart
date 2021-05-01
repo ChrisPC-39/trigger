@@ -72,6 +72,9 @@ class _TimePickerState extends State<TimePicker> {
               checkIconOpacity = 1.0;
               Navigator.of(context).push(
                 showPicker(
+                  cancelText: "",
+                  okText: "Submit",
+                  blurredBackground: true,
                   context: context,
                   value: _time,
                   onChange: onTimeChanged,

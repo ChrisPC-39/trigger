@@ -59,13 +59,19 @@ class _QuestionScreenState extends State<QuestionsScreen> {
       child: ValueListenableBuilder(
         valueListenable: Hive.box("questions").listenable(),
         builder: (context, questionBox, _) {
-          return ReorderableListView(
-            physics: BouncingScrollPhysics(),
-            key: _listKey,
-            onReorder: reorderList,
+          return Column(
             children: [
-              for(int i = 0; i < Hive.box("questions").length; i++)
-                _buildQuestion(i),
+              Flexible(
+                child: ReorderableListView(
+                  physics: BouncingScrollPhysics(),
+                  key: _listKey,
+                  onReorder: reorderList,
+                  children: [
+                    for(int i = 0; i < Hive.box("questions").length; i++)
+                      _buildQuestion(i),
+                  ]
+                )
+              ),
 
               _buildAddQuestion()
             ]
@@ -203,29 +209,18 @@ class _QuestionScreenState extends State<QuestionsScreen> {
     return TextButton(
       key: UniqueKey(),
       onPressed: () => popUpDialog(-1, false),
-      child: Container(
-        margin: EdgeInsets.fromLTRB(0, 0, 0, 10),
-        decoration: containerDecoration(),
-        child: Icon(Icons.add, size: 30, color: theme.isDark ? Colors.white : Colors.black),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          minWidth: 50,
+          minHeight: 60
+        ),
+        child: Container(
+          margin: EdgeInsets.fromLTRB(0, 0, 0, 10),
+          decoration: containerDecoration(),
+          child: Icon(Icons.add, size: 30, color: theme.isDark ? Colors.white : Colors.black),
+        ),
       )
     );
-
-    //If you want the ADD button to cover the entire screen width
-    // return TextButton(
-    //     key: UniqueKey(),
-    //     onPressed: () => popUpDialog(-1, false),
-    //     child: ConstrainedBox(
-    //       constraints: BoxConstraints(
-    //           minWidth: MediaQuery.of(context).size.width,
-    //           minHeight: 50
-    //       ),
-    //       child: Container(
-    //         margin: EdgeInsets.fromLTRB(0, 0, 0, 10),
-    //         decoration: containerDecoration(),
-    //         child: Icon(Icons.add, size: 30, color: theme.isDark ? Colors.white : Colors.black),
-    //       ),
-    //     )
-    // );
   }
 
   void reorderList(int oldIndex, int newIndex) {

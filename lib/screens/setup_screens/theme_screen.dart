@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
 import 'package:provider/provider.dart';
 import 'package:trigger/database/setup.dart';
@@ -55,7 +56,10 @@ class _ThemeScreenState extends State<ThemeScreen> {
                     isSystemThemeSelected: false)
                 );
 
-                setState(() { theme.isDark = false; });
+                setState(() {
+                  theme.isDark = false;
+                  setUIOverlayTheme(Colors.transparent, Brightness.dark);
+                });
               })
             ),
 
@@ -71,7 +75,10 @@ class _ThemeScreenState extends State<ThemeScreen> {
                   isSystemThemeSelected: false)
                 );
 
-                setState(() { theme.isDark = true; });
+                setState(() {
+                  theme.isDark = true;
+                  setUIOverlayTheme(Color(0xFF303030), Brightness.light);
+                });
               })
             ),
             SizedBox(width: 20),
@@ -92,12 +99,33 @@ class _ThemeScreenState extends State<ThemeScreen> {
               isSystemThemeSelected: true)
             );
 
-            setState(() { theme.isDark = isSystemDark(context); });
+            setState(() {
+              theme.isDark = isSystemDark(context);
+              setUIOverlayTheme(
+                isSystemDark(context)
+                  ? Color(0xFF303030)
+                  : Colors.transparent,
+                isSystemDark(context)
+                  ? Brightness.light
+                  : Brightness.dark
+              );
+            });
           }),
           style: customButton(isSystemDark(context) ? Color(0xFF424242) : Color(0xFFFFFFFF))
         )
       ]
     );
+  }
+
+  void setUIOverlayTheme(Color color, Brightness brightness) {
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+      statusBarColor: color,                            //Status bar color
+      statusBarBrightness: brightness,                  //Status bar brightness
+      statusBarIconBrightness: brightness,              //Status barIcon brightness
+      systemNavigationBarColor: color,                  //Navigation bar color
+      systemNavigationBarDividerColor: color,           //Navigation bar divider color
+      systemNavigationBarIconBrightness: brightness,    //Navigation bar icon
+    ));
   }
 
   bool isSystemDark(context) {

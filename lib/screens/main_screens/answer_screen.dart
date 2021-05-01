@@ -118,7 +118,7 @@ class _AnswerScreenState extends State<AnswerScreen> {
                 onPressed: () => setState(() {
                   addAnswer("yes");
                 })
-              ),
+              )
             ),
 
             AbsorbPointer(
@@ -157,8 +157,8 @@ class _AnswerScreenState extends State<AnswerScreen> {
           Container(
             margin: EdgeInsets.only(top: 50),
             child: Text(
-              "You answered all the questions for today.\n\n"
-              "Come back tomorrow for more!",
+              "You answered all the questions for today!\n\n"
+              "Come back tomorrow or change your answers.",
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)
             )

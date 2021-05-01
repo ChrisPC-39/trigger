@@ -12,8 +12,7 @@ class _GraphScreenState extends State<GraphScreen> {
   Widget build(BuildContext context) {
     final questionBox = Hive.box("questions");
     final question = questionBox.getAt(0) as Question;
-    // print(question.answer);
 
-    return Center(child: Container(width: 50, height: 50, color: Colors.red));
+    return Placeholder();
   }
 }

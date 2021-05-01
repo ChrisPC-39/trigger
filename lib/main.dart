@@ -108,6 +108,20 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     final setup = Hive.box("setup").getAt(0) as Setup;
 
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+      statusBarColor: theme.isDark ? Color(0xFF303030) : Colors.transparent,  //Status bar color
+      statusBarBrightness: theme.isDark ? Brightness.light : Brightness.dark,                //Status bar brightness
+      statusBarIconBrightness: theme.isDark ? Brightness.light : Brightness.dark,            //Status barIcon brightness
+      systemNavigationBarColor: theme.isDark ? Color(0xFF303030) : Colors.transparent,          //Navigation bar color
+      systemNavigationBarDividerColor: theme.isDark ? Color(0xFF303030) : Colors.transparent,   //Navigation bar divider color
+      systemNavigationBarIconBrightness: theme.isDark ? Brightness.light : Brightness.dark,  //Navigation bar icon
+    ));
+
     return ChangeNotifierProvider(
       create: (_) { return themeChangeProvider; },
       child: Consumer<DarkThemeProvider>(
