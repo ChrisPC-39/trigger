@@ -1,5 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:day_night_time_picker/day_night_time_picker.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:hive/hive.dart';
+import 'package:trigger/database/reminder.dart';
+import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
+
+import '../../notification_services.dart';
 
 class TimePicker extends StatefulWidget {
   @override
@@ -44,6 +51,9 @@ class _TimePickerState extends State<TimePicker> {
   }
 
   Widget _buildToggleReminder() {
+    final reminderBox = Hive.box("reminder");
+    final reminder = reminderBox.getAt(0) as Reminder;
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -68,6 +78,8 @@ class _TimePickerState extends State<TimePicker> {
                   is24HrFormat: true,
                   onChangeDateTime: (DateTime dateTime) {
                     setState(() {
+                      reminderBox.putAt(0, Reminder(dateTime.hour, dateTime.minute));
+                      _scheduleDailyNotification();
                       selectedHour= dateTime.hour;
                       selectedMinute = dateTime.minute;
                     });
@@ -78,6 +90,7 @@ class _TimePickerState extends State<TimePicker> {
               notIconOpacity = 1.0;
               checkIconOpacity = 0.0;
               setState(() {
+                reminderBox.putAt(0, Reminder(-1, -1));
                 selectedHour= -1;
                 selectedMinute = -1;
               });
@@ -97,9 +110,9 @@ class _TimePickerState extends State<TimePicker> {
   Widget _buildShowTime() {
     return Visibility(
       visible: selectedHour != -1,
-      child: Text("You will be reminded at $selectedHour:$selectedMinute every day!\n"
-          "Note: you can not choose specific days in which to be reminded",
-          textAlign: TextAlign.center,
+      child: Text("You will be reminded at $selectedHour:$selectedMinute every day!\n\n"
+        "Note: you can not choose specific days in which to be reminded",
+        textAlign: TextAlign.center,
       )
     );
   }
@@ -108,5 +121,45 @@ class _TimePickerState extends State<TimePicker> {
     setState(() {
       _time = newTime;
     });
+  }
+
+  Future<void> _scheduleDailyNotification() async {
+    await flutterLocalNotificationsPlugin.zonedSchedule(
+        0,
+        'Your daily questions are ready',
+        'Let\'s see how your day has been!',
+        _nextInstanceOfReminder(),
+        const NotificationDetails(
+          android: AndroidNotificationDetails(
+              'daily notification channel id',
+              'daily notification channel name',
+              'daily notification description'),
+        ),
+        androidAllowWhileIdle: true,
+        uiLocalNotificationDateInterpretation:
+        UILocalNotificationDateInterpretation.absoluteTime,
+        matchDateTimeComponents: DateTimeComponents.time);
+  }
+
+  tz.TZDateTime _nextInstanceOfReminder() {
+    final reminder = Hive.box("reminder").getAt(0) as Reminder;
+    final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
+
+    //This whole mess is required because DateTime.now().toUtc() differs from tz.local
+    //Time spent on this: 3 hours
+    //See the print() statements below for more info (remove the offset here vvvvvv
+    //before printing to understand.
+    final hourOffset = reminder.hour - DateTime.now().toUtc().hour;
+
+    tz.TZDateTime scheduledDate =
+    tz.TZDateTime(tz.local, now.year, now.month, now.day, reminder.hour - hourOffset, reminder.minute);
+
+    // print(scheduledDate);
+    // print(DateTime.now().toUtc());
+
+    if (scheduledDate.isBefore(now))
+      scheduledDate = scheduledDate.add(const Duration(days: 1));
+
+    return scheduledDate.toLocal();
   }
 }

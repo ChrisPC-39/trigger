@@ -7,7 +7,7 @@ import 'package:trigger/screens/setup_screens/theme_screen.dart';
 import 'package:trigger/screens/setup_screens/time_picker_screen.dart';
 
 import '../style.dart';
-import 'answer_screen.dart';
+import 'main_screens/answer_screen.dart';
 
 class SetupScreen extends StatefulWidget {
   @override

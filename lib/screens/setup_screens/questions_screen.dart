@@ -203,18 +203,29 @@ class _QuestionScreenState extends State<QuestionsScreen> {
     return TextButton(
       key: UniqueKey(),
       onPressed: () => popUpDialog(-1, false),
-      child: ConstrainedBox(
-        constraints: BoxConstraints(
-          minWidth: MediaQuery.of(context).size.width,
-          minHeight: 50
-        ),
-        child: Container(
-          margin: EdgeInsets.fromLTRB(0, 0, 0, 10),
-          decoration: containerDecoration(),
-          child: Icon(Icons.add, size: 30, color: theme.isDark ? Colors.white : Colors.black),
-        ),
+      child: Container(
+        margin: EdgeInsets.fromLTRB(0, 0, 0, 10),
+        decoration: containerDecoration(),
+        child: Icon(Icons.add, size: 30, color: theme.isDark ? Colors.white : Colors.black),
       )
     );
+
+    //If you want the ADD button to cover the entire screen width
+    // return TextButton(
+    //     key: UniqueKey(),
+    //     onPressed: () => popUpDialog(-1, false),
+    //     child: ConstrainedBox(
+    //       constraints: BoxConstraints(
+    //           minWidth: MediaQuery.of(context).size.width,
+    //           minHeight: 50
+    //       ),
+    //       child: Container(
+    //         margin: EdgeInsets.fromLTRB(0, 0, 0, 10),
+    //         decoration: containerDecoration(),
+    //         child: Icon(Icons.add, size: 30, color: theme.isDark ? Colors.white : Colors.black),
+    //       ),
+    //     )
+    // );
   }
 
   void reorderList(int oldIndex, int newIndex) {

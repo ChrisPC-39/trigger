@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:trigger/screens/answer_screen.dart';
+import 'package:trigger/screens/main_screens/answer_screen.dart';
 
 import '../style.dart';
-import 'graph_screen.dart';
-import 'settings_screen.dart';
+import 'main_screens/graph_screen.dart';
+import 'main_screens/settings_screen.dart';
 
 class MainScreen extends StatefulWidget {
   @override
@@ -11,8 +11,8 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  int screenIndex = 0;
-  final screenController = PageController(initialPage: 0, keepPage: true);
+  int screenIndex = 1;
+  final screenController = PageController(initialPage: 1, keepPage: true);
 
   @override
   Widget build(BuildContext context) {

@@ -20,6 +20,16 @@ ButtonStyle customButton(Color color) {
   );
 }
 
+ButtonStyle blurButtonStyle() {
+  return ButtonStyle(
+    backgroundColor: MaterialStateProperty.all(Colors.green[400]),
+    shape: MaterialStateProperty.all<RoundedRectangleBorder>(RoundedRectangleBorder(
+      side: BorderSide.none,
+      borderRadius: BorderRadius.circular(10)
+    ))
+  );
+}
+
 BoxShadow boxShadow() {
   return BoxShadow(
     color: theme.isDark ? Colors.black : Colors.grey,
@@ -33,6 +43,14 @@ BoxDecoration containerDecoration() {
   return BoxDecoration(
     boxShadow: [ boxShadow() ],
     color: theme.isDark ? Color(0xFF424242) : Colors.white,
+    borderRadius: BorderRadius.all(Radius.circular(20))
+  );
+}
+
+BoxDecoration dynamicColorDecoration(Color color) {
+  return BoxDecoration(
+    boxShadow: [ boxShadow() ],
+    color: color,
     borderRadius: BorderRadius.all(Radius.circular(20))
   );
 }
