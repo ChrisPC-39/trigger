@@ -8,8 +8,10 @@ import 'package:animations/animations.dart';
 import 'package:provider/provider.dart';
 import 'package:trigger/database/question.dart';
 import 'package:trigger/database/setup.dart';
+import 'package:trigger/screens/answer_screen.dart';
 import 'package:trigger/style.dart';
 
+import 'screens/main_screen.dart';
 import 'screens/setup_screen.dart';
 import 'theme/theme_colors.dart';
 import 'theme/theme_provider.dart';
@@ -35,14 +37,13 @@ Future<void> main() async {
   if(setupBox.length == 0)
     setupBox.add(Setup(isFirstTime: true, isSystemThemeSelected: false));
 
-  await Hive.openBox("question");
-  final questionBox = Hive.box("question");
+  await Hive.openBox("questions");
+  final questionBox = Hive.box("questions");
 
   if(questionBox.length == 0)
     questionBox.add(Question(
       "Did you do something productive today?",
-      "null",
-      0, 0, 0
+      [], [], [], []
     ));
 
   runApp(MyApp());
@@ -86,7 +87,7 @@ class _MyAppState extends State<MyApp> {
       child: Consumer<DarkThemeProvider>(
         builder: (context, value, child) {
           return MaterialApp(
-            home: SetupScreen(),
+            home: setup.isFirstTime ? SetupScreen() : MainScreen(),
             theme: Styles.themeData(themeChangeProvider.darkTheme, context),
             debugShowCheckedModeBanner: false
           );

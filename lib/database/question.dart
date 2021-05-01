@@ -8,16 +8,16 @@ class Question {
   final String question;
 
   @HiveField(1)
-  final String answer;
+  final List<String> answer;
 
   @HiveField(2)
-  final int day;
+  final List<int> day;
 
   @HiveField(3)
-  final int month;
+  final List<int> month;
 
   @HiveField(4)
-  final int year;
+  final List<int> year;
 
   Question(this.question, this.answer, this.day, this.month, this.year);
 }

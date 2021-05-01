@@ -57,14 +57,14 @@ class _QuestionScreenState extends State<QuestionsScreen> {
   Widget _buildListView() {
     return Flexible(
       child: ValueListenableBuilder(
-        valueListenable: Hive.box("question").listenable(),
+        valueListenable: Hive.box("questions").listenable(),
         builder: (context, questionBox, _) {
           return ReorderableListView(
             physics: BouncingScrollPhysics(),
             key: _listKey,
             onReorder: reorderList,
             children: [
-              for(int i = 0; i < Hive.box("question").length; i++)
+              for(int i = 0; i < Hive.box("questions").length; i++)
                 _buildQuestion(i),
 
               _buildAddQuestion()
@@ -76,7 +76,7 @@ class _QuestionScreenState extends State<QuestionsScreen> {
   }
 
   Widget _buildQuestion(int index) {
-    final questionBox = Hive.box("question");
+    final questionBox = Hive.box("questions");
     final question = questionBox.getAt(index) as Question;
 
     return ConstrainedBox(
@@ -120,7 +120,7 @@ class _QuestionScreenState extends State<QuestionsScreen> {
             popUpDialog(i, true);
             break;
           case 1:
-            setState(() { Hive.box("question").deleteAt(i); });
+            setState(() { Hive.box("questions").deleteAt(i); });
             break;
           default:
             break;
@@ -130,7 +130,7 @@ class _QuestionScreenState extends State<QuestionsScreen> {
   }
 
   void popUpDialog(int i, bool isEditing) async {
-    final questionBox = Hive.box("question");
+    final questionBox = Hive.box("questions");
     Question question;
     if(i >= 0) question = questionBox.getAt(i) as Question;
 
@@ -171,8 +171,8 @@ class _QuestionScreenState extends State<QuestionsScreen> {
             TextButton(
               onPressed: () {
                 if(isEditing)
-                  questionBox.putAt(i, Question(input, "null", 0, 0, 0));
-                else questionBox.add(Question(input, "null", 0, 0, 0));
+                  questionBox.putAt(i, Question(input, [], [], [], []));
+                else questionBox.add(Question(input, [], [], [], []));
 
                 focusNode.unfocus();
                 setState(() { textController.text = ""; });
@@ -218,7 +218,7 @@ class _QuestionScreenState extends State<QuestionsScreen> {
   }
 
   void reorderList(int oldIndex, int newIndex) {
-    final questionBox = Hive.box("question");
+    final questionBox = Hive.box("questions");
     final question = questionBox.getAt(oldIndex);
 
     if (oldIndex > newIndex) {

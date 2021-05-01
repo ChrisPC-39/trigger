@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
+import 'package:trigger/database/setup.dart';
+import 'package:trigger/screens/main_screen.dart';
 import 'package:trigger/screens/setup_screens/questions_screen.dart';
 import 'package:trigger/screens/setup_screens/theme_screen.dart';
 import 'package:trigger/screens/setup_screens/time_picker_screen.dart';
 
 import '../style.dart';
+import 'answer_screen.dart';
 
 class SetupScreen extends StatefulWidget {
   @override
@@ -12,6 +16,7 @@ class SetupScreen extends StatefulWidget {
 
 class _SetupScreenState extends State<SetupScreen> {
   int currPage = 0;
+  bool canChangeScreen = false;
   final pageController = PageController(initialPage: 0, keepPage: true);
 
   @override
@@ -77,6 +82,25 @@ class _SetupScreenState extends State<SetupScreen> {
                       duration: Duration(milliseconds: 500),
                       curve: Curves.easeInBack
                     );
+
+                    if(canChangeScreen) {
+                      final setup = Hive.box("setup").getAt(0) as Setup;
+                      Hive.box("setup").putAt(0, Setup(
+                        isFirstTime: false,
+                        isSystemThemeSelected: setup.isSystemThemeSelected
+                      ));
+
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => MainScreen())
+                      );
+                    }
+
+                    if(currPage == 2)
+                      canChangeScreen = true;
+                    else canChangeScreen = false;
+
+                    setState(() {});
                   }
                 )
               )
