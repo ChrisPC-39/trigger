@@ -19,24 +19,30 @@ class _AnswerScreenState extends State<AnswerScreen> {
 
   @override
   void initState() {
-    answeredQuestions = answeredToday() ? 1.0 : 0.0;
+    answeredQuestions = answeredToday(Question(
+      "", [],
+      [-1],
+      [-1],
+      [-1])
+    ) ? 1.0 : 0.0;
 
     super.initState();
   }
 
-  bool answeredToday() {
-    final questionBox = Hive.box("questions");
-    final question = questionBox.getAt(currQuestion) as Question;
+  bool answeredToday(Question question) {
+    if(question.answer.length == 0) return false;
 
     List<int> allDays = question.day;
     List<int> allMonths = question.month;
     List<int> allYears = question.year;
 
     if(dateExists(allDays, allMonths, allYears, question)
-        && question.day.last == DateTime.now().day)
+        && question.day.last == DateTime.now().day
+        && question.month.last == DateTime.now().month
+        && question.year.last == DateTime.now().year)
       return true;
 
-    return false;
+      return false;
   }
 
   @override
@@ -57,14 +63,15 @@ class _AnswerScreenState extends State<AnswerScreen> {
                     controller: pageController,
                     onPageChanged: (index) => setState(() { currQuestion = index; }),
                     children: [
-                      for(int i = 0; i < questionBox.length; i++)
-                        _buildQuestion(i)
+                      if(questionBox.length != 0)
+                        for(int i = 0; i < questionBox.length; i++)
+                          _buildQuestion(i)
                     ]
-                  ),
+                  )
                 )
               ),
               Spacer(flex: 1),
-              _buildAnswers(),
+              questionBox.length != 0 ? _buildAnswers() : Container(),
               Spacer(flex: 1)
             ]
           ),
@@ -195,7 +202,7 @@ class _AnswerScreenState extends State<AnswerScreen> {
   }
 
   Color findColor(Question question) {
-    if(!answeredToday())
+    if(!answeredToday(question))
       return theme.isDark ? Color(0xFF424242) : Colors.white;
 
     if(question.answer.last == "yes")
@@ -219,8 +226,8 @@ class _AnswerScreenState extends State<AnswerScreen> {
     if(!dateExists(allDays, allMonths, allYears, question)) {
       allAnswers += [answer];
       allDays += [currTime.day];
-      allMonths += [currTime.day];
-      allYears += [currTime.day];
+      allMonths += [currTime.month];
+      allYears += [currTime.year];
     } else allAnswers.last = answer;
 
     questionBox.putAt(
@@ -243,12 +250,17 @@ class _AnswerScreenState extends State<AnswerScreen> {
   }
 
   bool dateExists(List<int> day, List<int> month, List<int> year, Question question) {
-    for(int i = 0; i < day.length; i++) {
-      if(question.day.contains(day[i])
-          && question.day.contains(month[i])
-          && question.day.contains(year[i]))
-        return true;
-    }
+    // for(int i = 0; i < day.length; i++) {
+    //   if(question.day.contains(day[i])
+    //       && question.day.contains(month[i])
+    //       && question.day.contains(year[i]))
+    //     return true;
+    // }
+    //
+    // return false;
+
+    if(question.day.isNotEmpty && day.isNotEmpty)
+      return question.day.last == DateTime.now().day;
 
     return false;
   }

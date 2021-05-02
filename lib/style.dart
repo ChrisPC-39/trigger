@@ -16,7 +16,20 @@ ButtonStyle customButton(Color color) {
     shape: MaterialStateProperty.all<CircleBorder>(CircleBorder()),
     backgroundColor: MaterialStateProperty.resolveWith<Color>(
       (Set<MaterialState> states) { return color; }
+    )
+  );
+}
+
+ButtonStyle createQuestionButtonStyle(Color color) {
+  return ButtonStyle(
+    elevation: MaterialStateProperty.all<double>(4),
+    minimumSize: MaterialStateProperty.all<Size>(Size.square(60)),
+    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+      RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(20)))
     ),
+    backgroundColor: MaterialStateProperty.resolveWith<Color>(
+      (Set<MaterialState> states) { return color; }
+    )
   );
 }
 

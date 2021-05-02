@@ -151,6 +151,7 @@ class _QuestionScreenState extends State<QuestionsScreen> {
           title: Text(isEditing ? "Edit question" : "Add a new question"),
           content: TextField(
             maxLines: null,
+            autofocus: true,
             focusNode: focusNode,
             controller: textController,
             textCapitalization: TextCapitalization.sentences,
