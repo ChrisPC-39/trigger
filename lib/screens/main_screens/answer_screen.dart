@@ -20,6 +20,7 @@ class _AnswerScreenState extends State<AnswerScreen> {
   @override
   void initState() {
     answeredQuestions = answeredToday() ? 1.0 : 0.0;
+
     super.initState();
   }
 
@@ -31,7 +32,8 @@ class _AnswerScreenState extends State<AnswerScreen> {
     List<int> allMonths = question.month;
     List<int> allYears = question.year;
 
-    if(dateExists(allDays, allMonths, allYears, question))
+    if(dateExists(allDays, allMonths, allYears, question)
+        && question.day.last == DateTime.now().day)
       return true;
 
     return false;
