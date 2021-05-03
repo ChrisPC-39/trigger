@@ -1,4 +1,5 @@
 import 'package:day_night_time_picker/lib/daynight_timepicker.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -11,6 +12,7 @@ import 'package:trigger/database/setup.dart';
 import 'package:trigger/screens/setup_screens/theme_screen.dart';
 import 'package:trigger/screens/setup_screens/time_picker_screen.dart';
 import 'package:trigger/theme/theme_provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../notification_services.dart';
 import '../../style.dart';
@@ -26,6 +28,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   double reminderOnOpacity = 0.0;
   double reminderOffOpacity = 0.0;
   TimeOfDay _time = TimeOfDay.now().replacing(minute: 30);
+  static const _privacyPolicyURL = 'https://github.com/ChrisPC-39/Privacy-and-TOS/blob/main/Privacy-Policy.txt';
 
   @override
   void initState() {
@@ -50,11 +53,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Scaffold(
       body: Column(
         children: [
-          _buildSelectTheme(),
+          Flexible(child: _buildSelectTheme()),
           SizedBox(height: 5),
           Divider(thickness: 1),
-          _buildSelectTime(),
-          Divider(thickness: 1)
+          SizedBox(height: 5),
+          Flexible(child: _buildSelectTime()),
+          Spacer(flex: 2)
         ]
       )
     );

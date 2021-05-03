@@ -3,7 +3,7 @@ description: A new Flutter application.
 
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
-version: 0.9.13+1
+version: 1.2.0+1
 
 environment:
   sdk: ">=2.7.0 <3.0.0"
@@ -20,7 +20,7 @@ dependencies:
   day_night_time_picker: ^1.0.1+1
   flutter_local_notifications: ^5.0.0+1
   fl_chart: ^0.36.0
-  syncfusion_flutter_sliders: ^19.1.58-beta
+  url_launcher: ^6.0.3
 
 dev_dependencies:
   flutter_test:

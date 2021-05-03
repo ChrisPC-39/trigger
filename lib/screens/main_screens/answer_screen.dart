@@ -85,6 +85,7 @@ class _AnswerScreenState extends State<AnswerScreen> {
 
   Widget _buildScrollQuestions() {
     final questionBox = Hive.box("questions");
+    final division = questionBox.length >= 2 ? questionBox.length - 1 : 0;
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -108,7 +109,7 @@ class _AnswerScreenState extends State<AnswerScreen> {
               value: scrollbar / 10,
               min: 0,
               max: (questionBox.length - 1) / 10 ,
-              divisions: questionBox.length - 1,
+              divisions: questionBox.length > 1 ? questionBox.length - 1 : 1,
               label: "",
               //label: "${scrollbar.toInt()}",
               onChanged: (newQuestion) {
