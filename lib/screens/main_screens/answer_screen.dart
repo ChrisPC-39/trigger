@@ -15,16 +15,15 @@ class _AnswerScreenState extends State<AnswerScreen> {
   int currQuestion = 0;
   bool canChangeScreen = false;
   double answeredQuestions;
+  double rating = 0;
   final pageController = PageController(initialPage: 0, keepPage: true);
 
   @override
   void initState() {
-    answeredQuestions = answeredToday(Question(
-      "", [],
-      [-1],
-      [-1],
-      [-1])
-    ) ? 1.0 : 0.0;
+    final question = Hive.box("questions").getAt(currQuestion) as Question;
+    if(question.answer.length != 0)
+      rating = question.answer[currQuestion].toDouble() / 10;
+    else rating = 0;
 
     super.initState();
   }
@@ -74,15 +73,6 @@ class _AnswerScreenState extends State<AnswerScreen> {
               questionBox.length != 0 ? _buildAnswers() : Container(),
               Spacer(flex: 1)
             ]
-          ),
-
-          AnimatedOpacity(
-            duration: Duration(milliseconds: 300),
-            opacity: answeredQuestions,
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
-              child: _buildOverlay()
-            )
           )
         ]
       )
@@ -109,95 +99,43 @@ class _AnswerScreenState extends State<AnswerScreen> {
     );
   }
 
+  String matchLabel(double rating) {
+    int convertedRating = (rating * 10).round().floor();
+
+    switch(convertedRating) {
+      case 0: return "No";
+      // case 1:
+      // case 2:
+      // case 3:
+      // case 4:
+      case 5: return "Somewhat";
+      // case 6:
+      // case 7:
+      // case 8:
+      // case 9:
+      case 10: return "Yes";
+      default: return "${(rating * 10).round().floor()}";
+    }
+  }
+
   Widget _buildAnswers() {
     final questionBox = Hive.box("questions");
     final question = questionBox.getAt(currQuestion) as Question;
 
     return Column(
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            SizedBox(width: 20),
-            AbsorbPointer(
-              absorbing: answeredQuestions == 1.0,
-              child: ElevatedButton(
-                child: Icon(Icons.check, size: 35, color: Colors.black),
-                style: customButton(Colors.green[400]),
-                onPressed: () => setState(() {
-                  addAnswer("yes");
-                })
-              )
-            ),
-
-            AbsorbPointer(
-              absorbing: answeredQuestions == 1.0,
-              child: ElevatedButton(
-                child: Icon(Icons.close, size: 35),
-                style: customButton(Colors.red[400]),
-                onPressed: () => setState(() {
-                  addAnswer("no");
-                })
-              ),
-            ),
-            SizedBox(width: 20)
-          ]
-        ),
-
-        AbsorbPointer(
-          absorbing: answeredQuestions == 1.0,
-          child: ElevatedButton(
-            child: Icon(Icons.waves_rounded, size: 35, color: Colors.black),
-            style: customButton(Colors.yellow[400]),
-            onPressed: () => setState(() {
-              addAnswer("somewhat");
-            })
-          ),
+        Slider(
+          value: rating,
+          divisions: 10,
+          label: matchLabel(rating),
+          onChanged: (newRating) {
+            setState(() {
+              rating = newRating;
+              addAnswer((rating * 10).round().floor());
+            });
+          }
         )
       ]
-    );
-  }
-
-  Widget _buildOverlay() {
-    return Container(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Container(
-            margin: EdgeInsets.only(top: 50),
-            child: Text(
-              "You answered all the questions for today!\n\n"
-              "Come back tomorrow or change your answers.",
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold)
-            )
-          ),
-
-          //Spacer(flex: 5),
-
-          Container(
-            margin: EdgeInsets.only(bottom: 10),
-            child: TextButton(
-              style: blurButtonStyle(),
-              child: Text(
-                "Tap here to change your answers",
-                style: TextStyle(fontSize: 20, color: Colors.black)
-              ),
-              onPressed: () {
-                setState(() {
-                  currQuestion = 0;
-                  answeredQuestions = 0.0;
-                  pageController.animateToPage(
-                      currQuestion,
-                      duration: Duration(milliseconds: 500),
-                      curve: Curves.easeIn
-                  );
-                });
-              }
-            )
-          )
-        ]
-      )
     );
   }
 
@@ -205,18 +143,28 @@ class _AnswerScreenState extends State<AnswerScreen> {
     if(!answeredToday(question))
       return theme.isDark ? Color(0xFF424242) : Colors.white;
 
-    if(question.answer.last == "yes")
-      return Colors.green[400];
-    else if(question.answer.last == "no")
-      return Colors.red[400];
-    else return Colors.yellow[400];
+    //int convertedRating = (rating * 10).round().floor();
+    switch(question.answer[currQuestion]) {
+      case 1: return Colors.red[400];
+      case 0: return Color(0xFFE64D06);
+      case 2: return Color(0xFFFF9800);
+      case 3: return Color(0xFFFFC100);
+      case 4: return Colors.yellow[300];
+      case 5: return Color(0xFFFFEC19);
+      case 6: return Color(0xFFFEFB01);
+      case 7: return Color(0xFFCEFB02);
+      case 10: return Color(0xFF47B46D);
+      case 8: return Color(0xFF4FC879);
+      case 9: return Colors.green[400];
+      default: return theme.isDark ? Color(0xFF424242) : Colors.white;
+    }
   }
 
-  void addAnswer(String answer) {
+  void addAnswer(int answer) {
     final questionBox = Hive.box("questions");
     final question = questionBox.getAt(currQuestion) as Question;
 
-    List<String> allAnswers = question.answer;
+    List<int> allAnswers = question.answer;
 
     DateTime currTime = DateTime.now();
     List<int> allDays = question.day;
@@ -244,21 +192,10 @@ class _AnswerScreenState extends State<AnswerScreen> {
         duration: Duration(milliseconds: 500),
         curve: Curves.easeIn
       );
-    } else {
-      answeredQuestions = 1.0;
     }
   }
 
   bool dateExists(List<int> day, List<int> month, List<int> year, Question question) {
-    // for(int i = 0; i < day.length; i++) {
-    //   if(question.day.contains(day[i])
-    //       && question.day.contains(month[i])
-    //       && question.day.contains(year[i]))
-    //     return true;
-    // }
-    //
-    // return false;
-
     if(question.day.isNotEmpty && day.isNotEmpty)
       return question.day.last == DateTime.now().day;
 
