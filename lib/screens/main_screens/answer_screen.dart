@@ -3,7 +3,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:trigger/database/question.dart';
-import 'package:syncfusion_flutter_sliders/sliders.dart';
 
 import '../../style.dart';
 
@@ -56,8 +55,9 @@ class _AnswerScreenState extends State<AnswerScreen> {
         children:[
           Column(
             children: [
-              Spacer(flex: 2),
+              Spacer(flex: 1),
               _buildScrollQuestions(),
+              Spacer(flex: 1),
               Expanded(
                 child: PageView(
                   physics: BouncingScrollPhysics(),
@@ -89,23 +89,40 @@ class _AnswerScreenState extends State<AnswerScreen> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text("Question $currQuestion"),
-        Slider(
-          value: scrollbar / 10,
-          min: 0,
-          max: (questionBox.length - 1) / 10 ,
-          divisions: questionBox.length - 1,
-          label: "${scrollbar.toInt()}",
-          onChanged: (newQuestion) {
-            setState(() {
-              scrollbar = (newQuestion * 10).round().floor().toDouble();
-              pageController.animateToPage(
-                scrollbar.toInt(),
-                curve: Curves.easeIn,
-                duration: Duration(milliseconds: 200)
-              );
-            });
-          }
+        Text(
+          "Question ${currQuestion + 1}",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 30
+          )
+        ),
+        Container(
+          constraints: BoxConstraints(
+            maxWidth: MediaQuery.of(context).size.width * 0.5
+          ),
+          child: SliderTheme(
+            data: SliderTheme.of(context).copyWith(
+              valueIndicatorColor: Colors.transparent
+            ),
+            child: Slider(
+              value: scrollbar / 10,
+              min: 0,
+              max: (questionBox.length - 1) / 10 ,
+              divisions: questionBox.length - 1,
+              label: "",
+              //label: "${scrollbar.toInt()}",
+              onChanged: (newQuestion) {
+                setState(() {
+                  scrollbar = (newQuestion * 10).round().floor().toDouble();
+                  pageController.animateToPage(
+                    scrollbar.toInt(),
+                    curve: Curves.easeIn,
+                    duration: Duration(milliseconds: 200)
+                  );
+                });
+              }
+            )
+          )
         )
       ]
     );
@@ -184,7 +201,7 @@ class _AnswerScreenState extends State<AnswerScreen> {
       case 4: return Colors.yellow[300];
       case 5: return Color(0xFFFFEC19);
       case 6: return Color(0xFFFEFB01);
-      case 7: return Color(0xFFCEFB02);
+      case 7: return Colors.lightGreenAccent;
       case 10: return Color(0xFF47B46D);
       case 8: return Color(0xFF4FC879);
       case 9: return Colors.green[400];
