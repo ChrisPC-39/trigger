@@ -92,10 +92,11 @@ class _TimePickerState extends State<TimePicker> {
             } else {
               notIconOpacity = 1.0;
               checkIconOpacity = 0.0;
-              setState(() {
+              setState(() async {
                 reminderBox.putAt(0, Reminder(-1, -1));
                 selectedHour= -1;
                 selectedMinute = -1;
+                await flutterLocalNotificationsPlugin.cancel(0);
               });
             }
           })

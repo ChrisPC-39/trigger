@@ -8,7 +8,7 @@ class Question {
   final String question;
 
   @HiveField(1)
-  final List<String> answer;
+  final List<int> answer;
 
   @HiveField(2)
   final List<int> day;

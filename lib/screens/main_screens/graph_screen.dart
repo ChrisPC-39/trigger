@@ -93,6 +93,7 @@ class _GraphScreenState extends State<GraphScreen> {
     return Container(
       child: Column(
         children: [
+          SizedBox(height: 12),
           Expanded(child: _buildChart(question)),
           Divider(thickness: 1),
           ConstrainedBox(
@@ -165,9 +166,9 @@ class _GraphScreenState extends State<GraphScreen> {
             switch (value.toInt()) {
               case 0:
                 return 'N';
-              case 1:
+              case 5:
                 return '~';
-              case 2:
+              case 10:
                 return 'Y';
             }
             return '';
@@ -180,7 +181,7 @@ class _GraphScreenState extends State<GraphScreen> {
       borderData: FlBorderData(
         show: true,
         border: const Border(
-          bottom: BorderSide(color: Colors.transparent, width: 0),
+          bottom: BorderSide(color: Colors.grey, width: 2),
           left: BorderSide(color: Colors.grey, width: 2),
           right: BorderSide(color: Colors.transparent),
           top: BorderSide(color: Colors.transparent)
@@ -188,7 +189,7 @@ class _GraphScreenState extends State<GraphScreen> {
       ),
       minX: 0,
       maxX: 6,
-      maxY: 3,
+      maxY: 10,
       minY: 0,
       lineBarsData: linesBarData1(question),
     );
@@ -211,11 +212,13 @@ class _GraphScreenState extends State<GraphScreen> {
       spots: [
         if(question.answer.length >= 4)
           for(int i = 5; i > 0; i--)
-            _buildFlSpots(switchI(i), matchAnswer(question.answer[question.answer.length - i])),
+            _buildFlSpots(switchI(i), question.answer[question.answer.length - i].toDouble()),
 
+        //I might be going insane, but how did this ever work before?
+        //It need - i - 1 to work. How does it only give me this error now?
         if(question.answer.length < 4 && question.answer.length != 0)
           for(int i = 0; i < question.answer.length; i++)
-            _buildFlSpots(i, matchAnswer(question.answer[i]))
+            _buildFlSpots(i, question.answer[question.answer.length - i - 1].toDouble())
       ],
       isCurved: true,
       colors: [theme.isDark ? Colors.green[400] : Colors.indigo[400]],
@@ -232,19 +235,8 @@ class _GraphScreenState extends State<GraphScreen> {
     return FlSpot(i.toDouble(), x);
   }
 
-  double matchAnswer(String day) {
-    switch(day) {
-      case "yes": return 2;
-      case "somewhat": return 1;
-      case "no": return 0;
-    }
-
-    return 0;
-  }
-
   void popUpDialog() async {
     final questionBox = Hive.box("questions");
-
     textController.text = "";
 
     return showDialog(

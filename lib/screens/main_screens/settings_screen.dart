@@ -352,8 +352,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
       } else {
         reminderOffOpacity  = 1.0;
         reminderOnOpacity = 0.0;
-        setState(() {
+        setState(() async {
           reminderBox.putAt(0, Reminder(-1, -1));
+          await flutterLocalNotificationsPlugin.cancel(0);
         });
       }
     });

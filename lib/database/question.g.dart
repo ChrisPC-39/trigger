@@ -18,7 +18,7 @@ class QuestionAdapter extends TypeAdapter<Question> {
     };
     return Question(
       fields[0] as String,
-      (fields[1] as List)?.cast<String>(),
+      (fields[1] as List)?.cast<int>(),
       (fields[2] as List)?.cast<int>(),
       (fields[3] as List)?.cast<int>(),
       (fields[4] as List)?.cast<int>(),

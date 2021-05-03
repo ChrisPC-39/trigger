@@ -2,8 +2,6 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:trigger/database/question.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
-import 'package:syncfusion_flutter_charts/sparkcharts.dart';
 
 import '../../style.dart';
 
@@ -19,10 +17,14 @@ class ExpandedGraphScreen extends StatefulWidget {
 class _ExpandedGraphScreenState extends State<ExpandedGraphScreen> {
   String input;
   FocusNode focusNode;
+  int selectedMonth, selectedYear;
   TextEditingController textController = TextEditingController();
 
   @override
   void initState() {
+    selectedMonth = DateTime.now().month;
+    selectedYear = DateTime.now().year;
+
     focusNode = FocusNode();
     super.initState();
   }
@@ -39,12 +41,221 @@ class _ExpandedGraphScreenState extends State<ExpandedGraphScreen> {
       body: ListView(
         physics: BouncingScrollPhysics(),
         children: [
-          SizedBox(height: 40),
+          // SizedBox(height: 40),
+          _buildSelectMonthYear(),
           _buildLargeGraph(),
           SizedBox(height: 20),
           Divider(thickness: 1),
           _buildBottomRow()
         ]
+      )
+    );
+  }
+
+  Widget _buildSelectMonthYear() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.end,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(10, 10, 0, 0),
+          child: GestureDetector(
+            child: Text(
+              "${matchMonth(selectedMonth)} ",
+              style: TextStyle(
+                color: Colors.blue,
+                fontSize: 20
+              )
+            ),
+            onTap: () => _showMonthPickerDialog()
+          )
+        ),
+
+        Padding(
+          padding: const EdgeInsets.fromLTRB(0, 10, 20, 0),
+          child: GestureDetector(
+            child: Text(
+              "$selectedYear",
+              style: TextStyle(
+                  color: Colors.blue,
+                  fontSize: 20
+              )
+            ),
+            onTap: () => _showYearPickerDialog()
+          )
+        )
+      ]
+    );
+  }
+
+  void _showMonthPickerDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: theme.isDark ? Color(0xFF424242) : Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          title: Text("Pick a month"),
+          content: Container(
+            width: MediaQuery.of(context).size.width * 0.8,
+            height: MediaQuery.of(context).size.height * 0.45,
+            child: GridView(
+              physics: BouncingScrollPhysics(),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3
+              ),
+              children: [
+                // Container(width: 10, height: 20, color: Colors.blue)
+                for(int i = 1; i <= 12; i++)
+                  _buildMonths(i)
+              ]
+            )
+          ),
+          actions: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(0, 0, 10, 10),
+              child: GestureDetector(
+                child: Text(
+                  "Cancel",
+                  style: TextStyle(
+                    color: Colors.blue,
+                    fontSize: 20
+                  )
+                ),
+                onTap: () => Navigator.pop(context),
+              ),
+            )
+          ]
+        );
+      }
+    );
+  }
+
+  String matchMonth(int index) {
+    switch(index) {
+      case 1: return "JAN";
+      case 2: return "FEB";
+      case 3: return "MAR";
+      case 4: return "APR";
+      case 5: return "MAY";
+      case 6: return "JUN";
+      case 7: return "JUL";
+      case 8: return "AUG";
+      case 9: return "SEP";
+      case 10: return "OCT";
+      case 11: return "NOV";
+      case 12: return "DEC";
+    }
+
+    return "matchMonth.index is NULL";
+  }
+
+  Widget _buildMonths(int index) {
+    return GestureDetector(
+      child: Stack(
+        children: [
+          Center(
+            child: Opacity(
+              opacity: selectedMonth == index ? 1.0 : 0.0,
+              child: Container(
+                height: 50,
+                width: 50,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(60)),
+                  color: Colors.blue.withOpacity(0.5)
+                )
+              )
+            )
+          ),
+
+          Center(
+            child: GestureDetector(
+              child: Text(
+              matchMonth(index),
+              style: TextStyle(color: theme.isDark ? Colors.white : Colors.black)),
+              onTap: () {
+                setState(() {
+                  selectedMonth = index;
+                  Navigator.pop(context);
+                });
+              }
+            )
+          )
+        ]
+      )
+    );
+  }
+
+  void _showYearPickerDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: theme.isDark ? Color(0xFF424242) : Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          title: Text("Pick a year"),
+          content: Container(
+            width: MediaQuery.of(context).size.width * 0.5,
+            height: MediaQuery.of(context).size.height * 0.45,
+            child: Scrollbar(
+              showTrackOnHover: true,
+              radius: Radius.circular(20),
+              hoverThickness: 10,
+              thickness: 10,
+              child: ListView(
+                children: [
+                  for(int i = DateTime.now().year; i < DateTime.now().year + 100; i++)
+                    _buildYears(i)
+                ]
+              ),
+            )
+          ),
+          actions: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(0, 0, 10, 10),
+              child: GestureDetector(
+                child: Text(
+                  "Cancel",
+                  style: TextStyle(
+                      color: Colors.blue,
+                      fontSize: 20
+                  )
+                ),
+                onTap: () => Navigator.pop(context),
+              )
+            )
+          ]
+        );
+      }
+    );
+  }
+
+  Widget _buildYears(int index) {
+    return Center(
+      child: GestureDetector(
+        child: Container(
+          width: 70,
+          height: 30,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.all(Radius.circular(60)),
+            color: selectedYear == index ? Colors.blue : Colors.transparent,
+          ),
+          margin: EdgeInsets.fromLTRB(0, 5, 0, 5),
+          //color: selectedYear == index ? Colors.blue : Colors.transparent,
+          child: Center(
+            child: Text(
+              "$index",
+              style: TextStyle(
+                fontSize: 20
+              )
+            )
+          )
+        ),
+        onTap: () {
+          setState(() {
+            selectedYear = index;
+            Navigator.pop(context);
+          });
+        }
       )
     );
   }
@@ -153,12 +364,17 @@ class _ExpandedGraphScreenState extends State<ExpandedGraphScreen> {
           ),
           getTitles: (value) {
             switch (value.toInt()) {
-              case 0:
-                return 'N';
-              case 1:
-                return '~';
-              case 2:
-                return 'Y';
+              case 0: return 'N';
+              case 1: return "1";
+              case 2: return "2";
+              case 3: return "3";
+              case 4: return "4";
+              case 5: return '~';
+              case 6: return '6';
+              case 7: return '7';
+              case 8: return '8';
+              case 9: return '9';
+              case 10: return 'Y';
             }
             return '';
           },
@@ -178,7 +394,7 @@ class _ExpandedGraphScreenState extends State<ExpandedGraphScreen> {
       ),
       minX: 0,
       maxX: question.answer.length.toDouble(),
-      maxY: 3,
+      maxY: 10,
       minY: 0,
       lineBarsData: linesBarData1(),
     );
@@ -198,12 +414,19 @@ class _ExpandedGraphScreenState extends State<ExpandedGraphScreen> {
 
   List<LineChartBarData> linesBarData1() {
     final question = Hive.box("questions").getAt(widget.index) as Question;
+    List<int> ans = [];
+
+    for(int i = 0; i < question.month.length; i++) {
+      if(selectedMonth == question.month[i] && selectedYear == question.year[i]) {
+        ans.add(question.answer[i]);
+      }
+    }
 
     final LineChartBarData lineChartBarData1 = LineChartBarData(
       spots: [
-        if(question.answer.length != 0)
-          for(int i = 0; i < question.answer.length; i++)
-            FlSpot(i.toDouble(), matchAnswer(question.answer[i]))
+        if(ans.length != 0)
+          for(int i = 0; i < ans.length; i++)
+            FlSpot(i.toDouble(), ans[i].toDouble())
       ],
       isCurved: true,
       colors: [theme.isDark ? Colors.green[400] : Colors.indigo[400]],
