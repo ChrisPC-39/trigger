@@ -90,30 +90,28 @@ class _GraphScreenState extends State<GraphScreen> {
   }
 
   Widget _buildClosedContainer(Question question) {
-    return Container(
-      child: Column(
-        children: [
-          SizedBox(height: 12),
-          Expanded(child: _buildChart(question)),
-          Divider(thickness: 1),
-          ConstrainedBox(
-            constraints: BoxConstraints(
-              maxHeight: 40,
-              minHeight: 40
-            ),
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-              child: Text(
-                question.question.length > 40
-                  ? "${question.question.substring(0, 40)}..."
-                  : question.question,
-                textAlign: TextAlign.center,
-                style: TextStyle(fontWeight: FontWeight.bold)
-              )
+    return Column(
+      children: [
+        SizedBox(height: 12),
+        Flexible(child: _buildChart(question)),
+        Divider(thickness: 1),
+        ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: 40,
+            minHeight: 40
+          ),
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+            child: Text(
+              question.question.length > 40
+                ? "${question.question.substring(0, 40)}..."
+                : question.question,
+              textAlign: TextAlign.center,
+              style: TextStyle(fontWeight: FontWeight.bold)
             )
           )
-        ]
-      )
+        )
+      ]
     );
   }
 
@@ -132,12 +130,18 @@ class _GraphScreenState extends State<GraphScreen> {
           tooltipBgColor: Colors.grey.withOpacity(0.7),
           getTooltipItems: (touchedBarSpots) {
             return touchedBarSpots.map((barSpot) {
-              final int barI = barSpot.x.toInt();
+              final int barI = barSpot.x.toInt() - 1;
+              final int daysAgo = 4 - barI;
 
               return LineTooltipItem(
-                "${question.day[barI] < 10 ? "0" : ""}${question.day[barI]}."
-                "${question.month[barI] < 10 ? "0" : ""}${question.month[barI]}"
-                "\n${question.year[barI]}",
+                "${daysAgo == 0
+                  ? "Today"
+                  : daysAgo == 1 ? "Yesterday" : "$daysAgo\ndays ago"
+                }",
+                //"${4 - barI}\nday(s) ago",
+                // "${question.day[barI] < 10 ? "0" : ""}${question.day[barI]}."
+                // "${question.month[barI] < 10 ? "0" : ""}${question.month[barI]}"
+                // "\n${question.year[barI]}",
                 TextStyle(
                   color: theme.isDark
                     ? Colors.green[400]
@@ -210,15 +214,15 @@ class _GraphScreenState extends State<GraphScreen> {
   List<LineChartBarData> linesBarData1(Question question) {
     final LineChartBarData lineChartBarData1 = LineChartBarData(
       spots: [
-        if(question.answer.length >= 4)
+        if(question.answer.length >= 5)
           for(int i = 5; i > 0; i--)
             _buildFlSpots(switchI(i), question.answer[question.answer.length - i].toDouble()),
 
         //I might be going insane, but how did this ever work before?
         //It need - i - 1 to work. How does it only give me this error now?
-        if(question.answer.length < 4 && question.answer.length != 0)
+        if(question.answer.length <= 4 && question.answer.length != 0)
           for(int i = 0; i < question.answer.length; i++)
-            _buildFlSpots(i, question.answer[question.answer.length - i - 1].toDouble())
+            _buildFlSpots(i, question.answer[i].toDouble())
       ],
       isCurved: true,
       colors: [theme.isDark ? Colors.green[400] : Colors.indigo[400]],

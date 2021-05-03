@@ -237,7 +237,7 @@ class _ExpandedGraphScreenState extends State<ExpandedGraphScreen> {
           height: 30,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.all(Radius.circular(60)),
-            color: selectedYear == index ? Colors.blue : Colors.transparent,
+            color: selectedYear == index ? Colors.blue.withOpacity(0.5) : Colors.transparent,
           ),
           margin: EdgeInsets.fromLTRB(0, 5, 0, 5),
           //color: selectedYear == index ? Colors.blue : Colors.transparent,
@@ -285,7 +285,7 @@ class _ExpandedGraphScreenState extends State<ExpandedGraphScreen> {
             ElevatedButton(
               child: Icon(Icons.edit, size: 35, color: theme.isDark ? Colors.white : Colors.black),
               style: customButton(theme.isDark ? Color(0xFF424242) : Color(0xFFFFFFFF)),
-              onPressed: () => setState(() => popUpDialog(question)),
+              onPressed: () => popUpDialog(question),
             ),
 
             SizedBox(width: 20),
@@ -342,7 +342,7 @@ class _ExpandedGraphScreenState extends State<ExpandedGraphScreen> {
                 "${question.day[barI] < 10 ? "0" : ""}${question.day[barI]}."
                 "${question.month[barI] < 10 ? "0" : ""}${question.month[barI]}"
                 "\n${question.year[barI]}",
-                TextStyle(color: theme.isDark ? Colors.green[400] : Colors.indigo[400], fontWeight: FontWeight.bold)
+                TextStyle(color: theme.isDark ? Colors.green[400] : Colors.indigo, fontWeight: FontWeight.bold)
               );
             }).toList();
           }
@@ -351,8 +351,22 @@ class _ExpandedGraphScreenState extends State<ExpandedGraphScreen> {
       gridData: FlGridData(show: true),
       titlesData: FlTitlesData(
         bottomTitles: SideTitles(
-          showTitles: false,
-          reservedSize: 20,
+          showTitles: true,
+          reservedSize: 10,
+          getTextStyles: (value) => TextStyle(
+            color: theme.isDark ? Colors.white : Colors.black,
+            fontWeight: FontWeight.normal,
+            fontSize: 17,
+          ),
+          getTitles: (value) {
+            if(value < question.day.length)
+              return "${question.day[value.toInt()] < 10
+                ? "0"
+                : ""}"
+                "${question.day[value.toInt()]}";
+
+            return "";
+          }
         ),
 
         leftTitles: SideTitles(
@@ -376,6 +390,7 @@ class _ExpandedGraphScreenState extends State<ExpandedGraphScreen> {
               case 9: return '9';
               case 10: return 'Y';
             }
+
             return '';
           },
           margin: 10,

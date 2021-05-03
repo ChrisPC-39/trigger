@@ -46,18 +46,6 @@ Future<void> main() async {
 
   initBoxes(setupBox, questionBox, reminderBox);
 
-  // if(setupBox.length == 0)
-  //   setupBox.add(Setup(isFirstTime: true, isSystemThemeSelected: false));
-  //
-  // if(questionBox.length == 0)
-  //   questionBox.add(Question(
-  //     "Did you do something productive today?",
-  //     [], [], [], []
-  //   ));
-  //
-  // if(reminderBox.length == 0)
-  //   reminderBox.add(Reminder(-1, -1));
-
   runApp(MyApp());
 }
 

@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:trigger/database/question.dart';
+import 'package:syncfusion_flutter_sliders/sliders.dart';
 
 import '../../style.dart';
 
@@ -14,15 +15,17 @@ class AnswerScreen extends StatefulWidget {
 class _AnswerScreenState extends State<AnswerScreen> {
   int currQuestion = 0;
   bool canChangeScreen = false;
-  double answeredQuestions;
   double rating = 0;
+  double scrollbar = 0;
   final pageController = PageController(initialPage: 0, keepPage: true);
 
   @override
   void initState() {
-    final question = Hive.box("questions").getAt(currQuestion) as Question;
-    if(question.answer.length != 0)
-      rating = question.answer[currQuestion].toDouble() / 10;
+    final question = Hive.box("questions").getAt(Hive.box("questions").length - 1) as Question;
+    if(question.answer.length != 0 && answeredToday(question)) {
+      rating = question.answer.last.toDouble() / 10;
+      setState(() {});
+    }
     else rating = 0;
 
     super.initState();
@@ -54,19 +57,20 @@ class _AnswerScreenState extends State<AnswerScreen> {
           Column(
             children: [
               Spacer(flex: 2),
+              _buildScrollQuestions(),
               Expanded(
-                child: AbsorbPointer(
-                  absorbing: answeredQuestions == 1.0,
-                  child: PageView(
-                    physics: BouncingScrollPhysics(),
-                    controller: pageController,
-                    onPageChanged: (index) => setState(() { currQuestion = index; }),
-                    children: [
-                      if(questionBox.length != 0)
-                        for(int i = 0; i < questionBox.length; i++)
-                          _buildQuestion(i)
-                    ]
-                  )
+                child: PageView(
+                  physics: BouncingScrollPhysics(),
+                  controller: pageController,
+                  onPageChanged: (index) => setState(() {
+                    currQuestion = index;
+                    scrollbar = index.toDouble();
+                  }),
+                  children: [
+                    if(questionBox.length != 0)
+                      for(int i = 0; i < questionBox.length; i++)
+                        _buildQuestion(i)
+                  ]
                 )
               ),
               Spacer(flex: 1),
@@ -76,6 +80,34 @@ class _AnswerScreenState extends State<AnswerScreen> {
           )
         ]
       )
+    );
+  }
+
+  Widget _buildScrollQuestions() {
+    final questionBox = Hive.box("questions");
+
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text("Question $currQuestion"),
+        Slider(
+          value: scrollbar / 10,
+          min: 0,
+          max: questionBox.length / 10 - 0.1,
+          divisions: questionBox.length,
+          label: "${scrollbar.toInt()}",
+          onChanged: (newQuestion) {
+            setState(() {
+              scrollbar = (newQuestion * 10).round().floor().toDouble();
+              pageController.animateToPage(
+                scrollbar.toInt(),
+                curve: Curves.easeIn,
+                duration: Duration(milliseconds: 200)
+              );
+            });
+          }
+        )
+      ]
     );
   }
 
@@ -122,20 +154,16 @@ class _AnswerScreenState extends State<AnswerScreen> {
     final questionBox = Hive.box("questions");
     final question = questionBox.getAt(currQuestion) as Question;
 
-    return Column(
-      children: [
-        Slider(
-          value: rating,
-          divisions: 10,
-          label: matchLabel(rating),
-          onChanged: (newRating) {
-            setState(() {
-              rating = newRating;
-              addAnswer((rating * 10).round().floor());
-            });
-          }
-        )
-      ]
+    return Slider(
+      value: rating,
+      divisions: 10,
+      label: matchLabel(rating),
+      onChanged: (newRating) {
+        setState(() {
+          addAnswer((rating * 10).round().floor());
+          rating = newRating;
+        });
+      }
     );
   }
 
@@ -143,8 +171,7 @@ class _AnswerScreenState extends State<AnswerScreen> {
     if(!answeredToday(question))
       return theme.isDark ? Color(0xFF424242) : Colors.white;
 
-    //int convertedRating = (rating * 10).round().floor();
-    switch(question.answer[currQuestion]) {
+    switch(question.answer.last) {
       case 1: return Colors.red[400];
       case 0: return Color(0xFFE64D06);
       case 2: return Color(0xFFFF9800);
@@ -185,7 +212,7 @@ class _AnswerScreenState extends State<AnswerScreen> {
 
     if(currQuestion < questionBox.length - 1) {
       currQuestion += 1;
-      answeredQuestions = 0.0;
+      scrollbar += 1;
 
       pageController.animateToPage(
         currQuestion,
