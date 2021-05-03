@@ -93,8 +93,8 @@ class _AnswerScreenState extends State<AnswerScreen> {
         Slider(
           value: scrollbar / 10,
           min: 0,
-          max: questionBox.length / 10 - 0.1,
-          divisions: questionBox.length,
+          max: (questionBox.length - 1) / 10 ,
+          divisions: questionBox.length - 1,
           label: "${scrollbar.toInt()}",
           onChanged: (newQuestion) {
             setState(() {
@@ -154,16 +154,21 @@ class _AnswerScreenState extends State<AnswerScreen> {
     final questionBox = Hive.box("questions");
     final question = questionBox.getAt(currQuestion) as Question;
 
-    return Slider(
-      value: rating,
-      divisions: 10,
-      label: matchLabel(rating),
-      onChanged: (newRating) {
-        setState(() {
-          addAnswer((rating * 10).round().floor());
-          rating = newRating;
-        });
-      }
+    return Listener(
+      onPointerUp: (event) => setState(() {
+        addAnswer((rating * 10).round().floor());
+      }),
+      child: Slider(
+        value: rating,
+        divisions: 10,
+        label: matchLabel(rating),
+        onChanged: (newRating) {
+          setState(() {
+            //addAnswer((rating * 10).round().floor());
+            rating = newRating;
+          });
+        }
+      ),
     );
   }
 
